@@ -8,10 +8,15 @@
 		</style>
 	</head>
 	<body>
+        <h1>Pressione "c" para mover a esfera</h1>
+        <h2>Cubo se movendo conforme integração de Euler</h2>
 		<script type="module">
 			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 
+
 			// Our Javascript will go here.
+
+
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
@@ -29,34 +34,75 @@
             const mt2 = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
             const sphere = new THREE.Mesh( g2, mt2 ); 
             scene.add( sphere, cube );
+            let flag = 1;
             
             cube.translateX(2)
             sphere.translateX(-2)
 
             const a = new THREE.Euler( 0, 1, 1.57, 'XYZ' );
-            const b = new THREE.Vector3( 1, 0, 1 );
-            b.applyEuler(a);
+            const b = new THREE.Vector3( 0.008, 0.005, 0.008);
+            const c = new THREE.Vector3(3, 0, 0);
+            
+            function eulerCube() {
+                requestAnimationFrame( eulerCube );
 
-            addEventListener("keypress", (event) => {});
-
-            onkeypress = (event) => {};
-
-            function animate() {
-                requestAnimationFrame( animate );
                 b.applyEuler(a);
 
-                sphere.translateX(0.01)
-                
-                
                 cube.rotation.x += b.x;
                 cube.rotation.y += b.x;
 
-                sphere.rotation.x += 0.01;
-                sphere.rotation.y += 0.01;
+                cube.translateX(b.x)
+                cube.translateY(b.y)
 
+                if(cube.position.y > 8){
+                    cube.position.y = 0;
+                }
+                
                 renderer.render( scene, camera );
             }
-            animate();
+
+            eulerCube()
+
+            function moveBall(){
+                const id = requestAnimationFrame( moveBall );
+                b.applyEuler(a);
+
+                if(flag){
+
+                    sphere.translateX(-0.1)
+
+                    sphere.rotation.y += b.y
+                    sphere.rotation.z += b.z
+                    sphere.translateZ(b.z)
+                    sphere.translateY(b.y)
+
+                    if(sphere.position.x < -5){
+                        cancelAnimationFrame(id);
+                        flag = 0;
+                    }
+                }else{
+                    sphere.translateX(0.1)
+                    
+                    sphere.rotation.y -= b.y
+                    sphere.rotation.z -= b.z
+                    sphere.translateZ(-b.z)
+                    sphere.translateY(-b.y)
+
+                    if(sphere.position.x > -2){
+                        cancelAnimationFrame(id);
+                        flag = 1;
+                    }
+                }
+
+            }
+
+            
+            document.addEventListener("keypress", (event) => {
+                if(event.key == "c"){
+                    moveBall()
+                }
+            });
+            
 
         </script>
 	</body>
