@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Three.js - Primitives</title>
+    <title>Exercício 2 - Computação Gráfica</title>
     <style>
     html, body {
         height: 100%;
@@ -20,22 +20,13 @@
   <body>
     <canvas id="c"></canvas>
   </body>
-<script type="importmap">
-{
-  "imports": {
-    "three": "../../build/three.module.js",
-    "three/addons/": "../../examples/jsm/"
-  }
-}
-</script>
+
 
 <script type="module">
-import * as THREE from 'three';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+	import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 
-function main() {
+
+	function main() {
 
 	const canvas = document.querySelector( '#c' );
 	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
@@ -184,9 +175,6 @@ function main() {
 
 	}
 
-
-	
-
 	function resizeRendererToDisplaySize( renderer ) {
 
 		const canvas = renderer.domElement;
@@ -219,10 +207,22 @@ function main() {
 
 			const speed = .1 + ndx * .05;
 			const rot = time * speed;
-			obj.rotation.x = rot;
+			obj.rotation.x = -rot;
 			obj.rotation.y = rot;
 
 		} );
+
+        objects[0].scale.set(Math.sin(time)*2, Math.sin(time)*2, Math.sin(time)*2)
+        objects[4].scale.set(Math.sin(time)*2, Math.sin(time)*2, Math.sin(time)*2)
+
+        objects[1].rotation.set(Math.cos(time)*3, Math.cos(time)*3, Math.cos(time)*3)
+        objects[5].rotation.set(Math.cos(time)*3, Math.cos(time)*3, Math.cos(time)*3)
+
+        objects[2].position.x = (Math.tan(time))
+        objects[2].position.z = (Math.tan(time))
+        objects[2].position.y = (Math.tan(time))
+
+        objects[3].position.x = (3+Math.tan(time))
 
 		renderer.render( scene, camera );
 
@@ -230,33 +230,11 @@ function main() {
 
 	}
 	
-	let flag = 1;
-	
-	const m = new THREE.Matrix4();
-	m.set(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-
-	m.makeScale(2, 2, 2);
-	
-	function cubeSize(){
-		
-		const id = requestAnimationFrame( cubeSize);
-
-                if(flag){
-
-                    objects[0].apllyMatrix4(m)
-
-                }else{
-                   
-                }
-
-		
-	}
-
 	requestAnimationFrame( render );
-	cubeSize()
 
 }
 
 main();
+
 </script>
 </html>
