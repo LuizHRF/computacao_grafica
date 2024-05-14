@@ -11,7 +11,7 @@ const h = window.innerHeight,
 const aspectRatio = w / h,
   fieldOfView = 45,
   nearPlane = 1,
-  farPlane = 1000;
+  farPlane = 5000;
 
 const camera = new THREE.PerspectiveCamera(
   fieldOfView,
@@ -43,11 +43,11 @@ camera.lookAt(new THREE.Vector3(0, 7, 0));
 const controls = new OrbitControls( camera, renderer.domElement );
 
 //lights, 3 point lighting
-const col_light = 0xffffff; // set
+const col_light = 0xffeec4; // set
 
-const mult = 2.5;
+const mult = 8;
 
-const light = new THREE.AmbientLight(col_light, 0.6*mult);
+const light = new THREE.AmbientLight(col_light, 0.3*mult);
 
 const keyLight = new THREE.DirectionalLight(col_light, 0.6*mult*1.5);
 keyLight.position.set(20, 30, 10);
@@ -57,10 +57,10 @@ keyLight.shadow.camera.top = 20;
 // const shadowHelper = new THREE.CameraHelper( keyLight.shadow.camera );
 // scene.add( shadowHelper );
 
-const fillLight = new THREE.DirectionalLight(col_light, 0.3*mult);
+const fillLight = new THREE.DirectionalLight(col_light, 0.1*mult);
 fillLight.position.set(-20, 20, 20);
 
-const backLight = new THREE.DirectionalLight(col_light, 0.1*mult);
+const backLight = new THREE.DirectionalLight(col_light, 0.01*mult);
 backLight.position.set(10, 0, -20);
 
 scene.add(light);
@@ -72,8 +72,11 @@ scene.add(backLight);
 const axesHelper = new THREE.AxesHelper(50);
 scene.add(axesHelper);
 
+
+
+
 //materials
-const mat_grass = new THREE.MeshPhongMaterial({ color: 0x024d18});
+const mat_grass = new THREE.MeshPhysicalMaterial({ color: 0x024d18, roughness: 0.7, transmission: 0.5, thickness: 5});
 const mat_dark = new THREE.MeshPhongMaterial({ color: 0x5a6e6c });
 const mat_black = new THREE.MeshPhongMaterial({ color: 0x261d0d , side: THREE.DoubleSide});
 const mat_pillar = new THREE.MeshPhongMaterial({ color: 0x453418 });
@@ -87,14 +90,15 @@ const vidro_mat = new THREE.MeshPhysicalMaterial({
   thickness: 4
 });
 
-const wireframeMaterial = new THREE.MeshStandardMaterial( { color: 0x000000, wireframe: true, transparent: true } ); 
 
 //-------------------------------------ground-------------------------------------
 
 const ground = new THREE.Group();
 
 const geometry = new THREE.CylinderGeometry(8 - 0.01, 8, 0.1, 9);
-const floor = new THREE.Mesh(geometry, mat_grass)
+const floor = new THREE.Mesh(geometry, mat_grass
+  
+)
 floor.position.y = 0;
 floor.receiveShadow = true;
 ground.add(floor);
@@ -115,16 +119,18 @@ const geo_stone = new THREE.DodecahedronGeometry(1, 0);
 const stone = [];
 for (let i = 0; i < 2; i++) {
   stone[i] = new THREE.Mesh(geo_stone, mat_stone);
-  scene.add(stone[i]);
   stone[i].castShadow = true;
+  scene.add(stone[i]);
 }
 stone[0].rotation.set(0, 12, pi / 2);
 stone[0].scale.set(1.5, 0.5, 0.5);
 stone[0].position.set(-2, 0.5, 6);
+stone[0].castShadow = true;
 
 stone[1].rotation.set(0, 0, pi / 2);
 stone[1].scale.set(0.5, 0.5, 0.5);
 stone[1].position.set(stone[0].position.x+0.6, stone[0].position.y-0.3, stone[0].position.z+0.5);
+stone[1].castShadow = true;
 
 //-------------------------------------arbustos-------------------------------------
 
@@ -378,6 +384,26 @@ scene.add(bushGroup);
   blades.rotation.y = pi;
   blades.position.set(2.6, 8.6, 0);
   scene.add(blades);
+
+//-------------------------------------SkyBox-------------------------------------
+
+  const imagePrefix = "dawnmountain-";
+	const directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
+	const imageSuffix = ".png";
+	const skyGeometry = new THREE.BoxGeometry( 1000, 1000, 1000 );	
+
+  const loader = new THREE.TextureLoader();
+  loader.setPath( 'images/' );
+	
+	const materialArray = [];
+	for (let i = 0; i < 6; i++)
+		materialArray.push( new THREE.MeshBasicMaterial({
+			map: loader.load( imagePrefix + directions[i] + imageSuffix ),
+			side: THREE.BackSide
+		}));
+	//const skyMaterial = new THREE.MeshBasicMaterial( materialArray );
+	const skyBox = new THREE.Mesh( skyGeometry, materialArray );
+	scene.add( skyBox );
 
 //-------------------------------------Renderização-------------------------------------
 const render = function () {
