@@ -29,8 +29,7 @@ const renderer = new THREE.WebGLRenderer({
 const dpi = window.devicePixelRatio;
 renderer.setSize(w * dpi, h * dpi);
 const theCanvas = document.getElementById("c");
-theCanvas.style.width = `${w}px`;
-theCanvas.style.height = `${h}px`;
+
 
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -39,10 +38,8 @@ document.body.appendChild(renderer.domElement);
 //camera
 camera.position.set(22, 15, 6);
 camera.lookAt(new THREE.Vector3(0, 7, 0));
-
 const controls = new OrbitControls( camera, renderer.domElement );
 
-//lights, 3 point lighting
 const col_light = 0xffeec4; // set
 
 const mult = 8;
@@ -52,36 +49,25 @@ const light = new THREE.AmbientLight(col_light, 0.3*mult);
 const keyLight = new THREE.DirectionalLight(col_light, 0.6*mult*1.5);
 keyLight.position.set(20, 30, 10);
 keyLight.castShadow = true;
-keyLight.shadow.camera.top = 20;
+keyLight.shadow.camera.top = 50;
 
 // const shadowHelper = new THREE.CameraHelper( keyLight.shadow.camera );
 // scene.add( shadowHelper );
 
-const fillLight = new THREE.DirectionalLight(col_light, 0.1*mult);
-fillLight.position.set(-20, 20, 20);
-
-const backLight = new THREE.DirectionalLight(col_light, 0.01*mult);
-backLight.position.set(10, 0, -20);
-
 scene.add(light);
 scene.add(keyLight);
-scene.add(fillLight);
-scene.add(backLight);
 
 // axis
 const axesHelper = new THREE.AxesHelper(50);
 scene.add(axesHelper);
 
-
-
-
 //materials
-const mat_grass = new THREE.MeshPhysicalMaterial({ color: 0x024d18, roughness: 0.7, transmission: 0.5, thickness: 5});
-const mat_dark = new THREE.MeshPhongMaterial({ color: 0x5a6e6c });
-const mat_black = new THREE.MeshPhongMaterial({ color: 0x261d0d , side: THREE.DoubleSide});
-const mat_pillar = new THREE.MeshPhongMaterial({ color: 0x453418 });
-const mat_pale = new THREE.MeshPhongMaterial({ color: 0xcfc7b4 });
-const mat_brown = new THREE.MeshPhongMaterial({ color: 0xa68558});
+const mat_grass = new THREE.MeshToonMaterial({ color: 0x024d18 });
+const mat_dark = new THREE.MeshToonMaterial({ color: 0x5a6e6c });
+const mat_black = new THREE.MeshToonMaterial({ color: 0x261d0d , side: THREE.DoubleSide});
+const mat_pillar = new THREE.MeshToonMaterial({ color: 0x453418 });
+const mat_pale = new THREE.MeshToonMaterial({ color: 0xcfc7b4 });
+const mat_brown = new THREE.MeshToonMaterial({ color: 0xa68558});
 const mat_stone = new THREE.MeshPhysicalMaterial({ color: 0x9eaeac, roughness: 0.7, transmission: 0.5, thickness: 5});
 const mat_bush = new THREE.MeshPhysicalMaterial({color: 0x328a07, roughness: 0.7, transmission: 0.5, thickness: 5});
 const vidro_mat = new THREE.MeshPhysicalMaterial({
@@ -176,7 +162,8 @@ scene.add(bushGroup);
   const radius_found_bottom = radius_found_top/2.5;
   const geo_foundation = new THREE.CylinderGeometry(radius_found_top, radius_found_bottom, found_height, 6);
   const foundation = new THREE.Mesh(geo_foundation, mat_brown);
-
+  foundation.castShadow = true;
+  foundation.receiveShadow = true;
   
   foundation.rotation.x = pi;
   foundation.position.y = found_height / 2;
@@ -336,47 +323,70 @@ scene.add(bushGroup);
 
 //-------------------------------------Pás--------------------------------------------
 
-
-  const holder = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 0.8), mat_black);
+  const holder = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.6, 0.6), mat_black);
   holder.position.set(2, 8.6, 0);
+  holder.castShadow = true;
   moinho.add(holder)
 
   const blades = new THREE.Group(); 
   blades.position.set(0, 5, 0);
   
-  const holder2_1 = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16, 0, pi*2, 0, pi/2), mat_black);
-  const holder2_2 = new THREE.Mesh(new THREE.CircleGeometry(1), mat_black);
+  const radius = 0.6
+  const holder2_1 = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16, 0, pi*2, 0, pi/2), mat_black);
+  const holder2_2 = new THREE.Mesh(new THREE.CircleGeometry(radius), mat_black);
+  holder2_2.castShadow = true;
   holder2_2.rotation.x = pi/2;
+  holder2_2.position.y -= 0.1;
+  holder2_1.position.y -= 0.1;
   blades.add(holder2_1, holder2_2);
 
   { //pás
     const bladesArray = []
-    const cableLenght = 4;
+    const cableLenght = 3.5;
     const cableLenghtfactor = (cableLenght/2)-0.1;
     const bladeCable_geo = new THREE.CylinderGeometry(0.1, 0.1, cableLenght);
 
     for (let i=0; i<4; i++){
-      
-      const blade_cable = new THREE.Mesh(bladeCable_geo, mat_black);
+      const blade = new THREE.Group();
 
-      blade_cable.position.y = 0.2;
-      bladesArray.push(blade_cable);
-      blades.add(blade_cable);
+      const blade_cable = new THREE.Mesh(bladeCable_geo, mat_black);
+      blade.add(blade_cable);
+      blade_cable.castShadow = true;
+
+      const blade_cloth_backgroud = new THREE.Mesh(new THREE.BoxGeometry(0.05, cableLenght-0.6, 0.8), mat_black);
+      blade_cloth_backgroud.castShadow = true;
+
+      blade_cloth_backgroud.position.y = ((-1)**i)*0.5;
+      blade_cloth_backgroud.position.z = ((-1)**i)*0.3;
+
+      //blade.add(blade_cloth_backgroud);
+
+      const blade_cloth = blade_cloth_backgroud.clone();
+      blade_cloth.material = mat_pale
+      blade_cloth.scale.set(0.2, 1, 0.9)
+      blade_cloth.position.x -=0.026
+      blade.add(blade_cloth)
+
+      bladesArray.push(blade);
+      blades.add(blade);
     }
 
-    bladesArray[0].rotation.z = pi/2;
-    bladesArray[0].position.x = 1 + cableLenghtfactor;
+    bladesArray[0].rotation.z = -pi/2;
+    bladesArray[0].position.x = radius + cableLenghtfactor;
 
-    bladesArray[1].rotation.z = pi/2;
-    bladesArray[1].position.x = - (1 + cableLenghtfactor);
+    bladesArray[1].rotation.z = -pi/2;
+    bladesArray[1].rotation.y = pi/2;
+    bladesArray[1].position.z = radius + cableLenghtfactor;
 
     bladesArray[2].rotation.z = pi/2;
-    bladesArray[2].rotation.y = pi/2;
-    bladesArray[2].position.z = 1 + cableLenghtfactor;
+    bladesArray[2].rotation.x = -pi;
+    bladesArray[2].position.x = - (radius + cableLenghtfactor);
 
     bladesArray[3].rotation.z = pi/2;
-    bladesArray[3].rotation.y = pi/2;
-    bladesArray[3].position.z = -(1 + cableLenghtfactor);
+    bladesArray[3].rotation.y = -pi/2;
+    bladesArray[3].rotation.x = pi;
+
+    bladesArray[3].position.z = -(radius + cableLenghtfactor);
   
   }
 
@@ -405,11 +415,85 @@ scene.add(bushGroup);
 	const skyBox = new THREE.Mesh( skyGeometry, materialArray );
 	scene.add( skyBox );
 
+//-------------------------------------Topo do moinho-------------------------------------
+
+  const birdVector = []
+
+  const bird = new THREE.Group()
+
+  const fix = new THREE.Points(); //Ponto fixo que ajuda a movimentar o pássaro
+  fix.position.set(0,0,0)
+  bird.add(fix)
+
+   //Mesh do pássaro
+    const birdMesh = new THREE.Group()
+    const corpo = new THREE.Mesh(new THREE.DodecahedronGeometry(0.2, 0), new THREE.MeshToonMaterial({color: 'grey', side: THREE.DoubleSide}))
+    corpo.material.color.setHSL( Math.random() , 0.6, .5);
+    corpo.castShadow = true;
+    corpo.scale.set(0.9, 0.3, 0.3)
+    corpo.position.x -= 0.1
+    birdMesh.add(corpo)
+
+    { //Asas
+      const wingShape = new THREE.Shape();
+      wingShape.bezierCurveTo( 0.5, .5, 0, 1.2, 0, 0 );
+      const wing = new THREE.Mesh(new THREE.ShapeGeometry( wingShape ), corpo.material.clone());
+      wing.material.color.setHSL( Math.random() , 0.6, .5);
+      
+      wing.scale.set(0.5, 0.5, 0.5)
+      wing.rotation.z = 1;
+
+      const wing2 = wing.clone();
+
+      wing.rotation.x = pi/2;
+      wing2.rotation.x = -pi/2;
+      birdMesh.add(wing, wing2)
+    }
+
+    bird.add(birdMesh)
+    
+
+    birdMesh.position.set(7, 7, 7)
+    birdMesh.rotateY(1)
+
+    birdVector.push(bird)
+
+
+  const bird2 = bird.clone();
+  bird2.position.z =+ 1;
+  bird2.position.y =+2;
+
+  birdVector.push(bird2)  
+
+  const bird3 = bird.clone();
+  bird3.position.x -= 2;
+  bird3.position.y -= 1;
+
+  birdVector.push(bird3)
+
+
+  for(const obj of birdVector){
+    scene.add(obj)
+
+  }
+
+  function animatebird(time){
+    let i =0;
+    for(const bird of birdVector){
+      i++;
+      bird.rotation.y +=.006
+      bird.rotation.x += (Math.sin(time/1000)/1000) * i
+    };
+  }
+
 //-------------------------------------Renderização-------------------------------------
 const render = function () {
   requestAnimationFrame(render);
 
+  const time = Date.now(); 
+
   blades.rotation.x += 0.01;
+  animatebird(time)
 
   renderer.render(scene, camera);
 };
