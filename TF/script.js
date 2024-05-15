@@ -30,6 +30,16 @@ const dpi = window.devicePixelRatio;
 renderer.setSize(w * dpi, h * dpi);
 const theCanvas = document.getElementById("c");
 
+window.addEventListener( 'resize', onWindowResize, false );
+
+function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
 
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -492,7 +502,7 @@ const render = function () {
 
   const time = Date.now(); 
 
-  blades.rotation.x += 0.01;
+  blades.rotation.x += 0.005;
   animatebird(time)
 
   renderer.render(scene, camera);
