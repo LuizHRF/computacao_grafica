@@ -14,35 +14,6 @@ scene.background = new THREE.Color('rgb(191, 156, 84)');
 
 const keyboard = new THREEx.KeyboardState();
 
-const loader = new FontLoader();
-
-loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-	const geometry = new TextGeometry( 'Hello three.js!', {
-		font: font,
-		size: 80,
-		depth: 5,
-		curveSegments: 12,
-		bevelEnabled: true,
-		bevelThickness: 10,
-		bevelSize: 8,
-		bevelOffset: 0,
-		bevelSegments: 5
-	} );
-
-    const material = new THREE.MeshFaceMaterial([
-        new THREE.MeshPhongMaterial({
-           color: 0xff22cc,
-           flatShading: true,
-        }), // front
-        new THREE.MeshPhongMaterial({
-           color: 0xffcc22
-        }), // side
-     ])
-     const text = new THREE.Mesh(geometry, material)
-     text.position.z = 4
-     scene.add(text)
-} );
 
 //----------------------------------------------------------------------------
 

@@ -72,8 +72,8 @@ const axesHelper = new THREE.AxesHelper(50);
 scene.add(axesHelper);
 
 //materials
-const mat_grass = new THREE.MeshToonMaterial({ color: 0x024d18 });
-const mat_dark = new THREE.MeshToonMaterial({ color: 0x5a6e6c });
+const mat_grass = new THREE.MeshPhysicalMaterial({ color: 0x024d18, roughness: 0.7, transmission: 0.5, thickness: 5});
+const mat_dark = new THREE.MeshPhysicalMaterial({ color: 0x5a6e6c, roughness: 0.7, transmission: 0.5, thickness: 5});
 const mat_black = new THREE.MeshToonMaterial({ color: 0x261d0d , side: THREE.DoubleSide});
 const mat_pillar = new THREE.MeshToonMaterial({ color: 0x453418 });
 const mat_pale = new THREE.MeshToonMaterial({ color: 0xcfc7b4 });
@@ -86,6 +86,14 @@ const vidro_mat = new THREE.MeshPhysicalMaterial({
   thickness: 4
 });
 
+const Tloader = new THREE.TextureLoader();
+  const normalMap =Tloader.load('textures4/Substance_Graph_normal.jpg' );
+  const occlusionMap =Tloader.load('textures4/Substance_Graph_ambientOcclusion.jpg' );
+  const roughnessMap =Tloader.load('textures4/Substance_Graph_roughness.jpg' );
+  const heightMap = Tloader.load('textures4/Substance_Graph_height.jpg' );
+  const colorMap = Tloader.load('textures4/Substance_Graph_basecolor.jpg' );
+
+  const tileMaterial =  new THREE.MeshStandardMaterial({normalMap: normalMap, aoMap: occlusionMap, roughnessMap: roughnessMap, color: 0xa68558, displacementMap: heightMap});
 
 //-------------------------------------ground-------------------------------------
 
@@ -171,7 +179,7 @@ scene.add(bushGroup);
   const radius_found_top = 4;
   const radius_found_bottom = radius_found_top/2.5;
   const geo_foundation = new THREE.CylinderGeometry(radius_found_top, radius_found_bottom, found_height, 6);
-  const foundation = new THREE.Mesh(geo_foundation, mat_brown);
+  const foundation = new THREE.Mesh(geo_foundation, tileMaterial);
   foundation.castShadow = true;
   foundation.receiveShadow = true;
   
@@ -425,7 +433,7 @@ scene.add(bushGroup);
 	const skyBox = new THREE.Mesh( skyGeometry, materialArray );
 	scene.add( skyBox );
 
-//-------------------------------------Topo do moinho-------------------------------------
+//-------------------------------------Pássaros-------------------------------------
 
   const birdVector = []
 
@@ -493,8 +501,72 @@ scene.add(bushGroup);
       i++;
       bird.rotation.y +=.006
       bird.rotation.x += (Math.sin(time/1000)/1000) * i
-    };
+    }
   }
+
+//-------------------------------------Pedras flutuantes-------------------------------------
+
+const stoneVector = []
+const FloatingStones = new THREE.Group()
+
+
+scene.add(FloatingStones)
+
+FloatingStones.add(fix)
+
+  for(let i=0; i<9; i++){
+    const stn = new THREE.Mesh(geo_stone, mat_dark)
+    FloatingStones.add(stn)
+    stoneVector.push(stn)
+  }
+
+  { //Rotando e ajusatndo as pedras
+    stoneVector[0].position.set(-6, -5, -6)
+    stoneVector[0].scale.set(1, 2, 1)
+    stoneVector[0].rotation.set(1, 0, 0)
+  
+    stoneVector[1].position.set(4, -8, 0)
+    stoneVector[1].scale.set(1, 1.7, 1.1)
+    stoneVector[1].rotation.set(0, 0.4, 2)
+    
+    stoneVector[2].position.set(5, -3, 5)
+    stoneVector[2].scale.set(0.7, 0.7, 1.2)
+    stoneVector[2].rotation.set(0, 0, 0.7)
+    
+    stoneVector[3].position.set(5, -4, 5)
+    stoneVector[3].scale.set(0.5, 0.5, 0.3)
+    stoneVector[3].rotation.set(1, 0, 0)
+
+    stoneVector[4].position.set(0, -3.4, 5)
+    stoneVector[4].scale.set(0.5, 0.5, 0.3)
+    stoneVector[4].rotation.set(1, 0, 0)
+
+    stoneVector[5].position.set(0, -6, 5)
+    stoneVector[5].scale.set(0.6, 0.8, 1.3)
+    stoneVector[5].rotation.set(0, 0.3, 0.7)
+
+    stoneVector[6].position.set(-4, -7, 4)
+    stoneVector[6].scale.set(1.3, 0.8, 0.9)
+    stoneVector[6].rotation.set(.7, 0, 0)
+
+    stoneVector[7].position.set(3, -6.4, -6)
+    stoneVector[7].scale.set(1.1, 0.4, 0.9)
+    stoneVector[7].rotation.set(.2, 0, 1)
+
+    stoneVector[8].position.set(-4, -9, -2)
+    stoneVector[8].scale.set(1.1, 1.2, 0.9)
+    stoneVector[8].rotation.set(1, .4, 0)
+  
+  }
+
+  function animateStone(time){
+  
+    FloatingStones.rotation.y +=.0007
+    FloatingStones.rotation.x += (Math.sin(time)/10000)
+
+    stoneVector[2].getWorldPosition(stoneVector[3].position.set())
+  }
+
 
 //-------------------------------------Renderização-------------------------------------
 const render = function () {
@@ -504,6 +576,7 @@ const render = function () {
 
   blades.rotation.x += 0.005;
   animatebird(time)
+  animateStone(time)
 
   renderer.render(scene, camera);
 };
