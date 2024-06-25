@@ -50,26 +50,30 @@ camera.position.set(22, 15, 6);
 camera.lookAt(new THREE.Vector3(0, 7, 0));
 const controls = new OrbitControls( camera, renderer.domElement );
 
-const col_light = 0xffeec4; // set
+{ //Luzes
+ 
+  const col_light = 0xffeec4; // cor
 
-const mult = 8;
+  const mult = 8;
 
-const light = new THREE.AmbientLight(col_light, 0.3*mult);
+  const light = new THREE.AmbientLight(col_light, 0.3*mult);
 
-const keyLight = new THREE.DirectionalLight(col_light, 0.6*mult*1.5);
-keyLight.position.set(20, 30, 10);
-keyLight.castShadow = true;
-keyLight.shadow.camera.top = 50;
+  const keyLight = new THREE.DirectionalLight(col_light, 0.6*mult*1.5);
+  keyLight.position.set(20, 30, 10);
+  keyLight.castShadow = true;
+  keyLight.shadow.camera.top = 50;
 
-// const shadowHelper = new THREE.CameraHelper( keyLight.shadow.camera );
-// scene.add( shadowHelper );
+  // const shadowHelper = new THREE.CameraHelper( keyLight.shadow.camera );
+  // scene.add( shadowHelper );
 
-scene.add(light);
-scene.add(keyLight);
+  scene.add(light);
+  scene.add(keyLight);
+
+}
 
 // axis
 const axesHelper = new THREE.AxesHelper(50);
-scene.add(axesHelper);
+//scene.add(axesHelper);
 
 //materials
 const mat_grass = new THREE.MeshPhysicalMaterial({ color: 0x024d18, roughness: 0.7, transmission: 0.5, thickness: 5});
@@ -419,14 +423,15 @@ scene.add(bushGroup);
 	const directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
 	const imageSuffix = ".png";
 	const skyGeometry = new THREE.BoxGeometry( 1000, 1000, 1000 );	
-
+  const imgs = ['px', 'nx', 'py', 'ny', 'pz', 'nz']
+  const imgss = '.jpg'
   const loader = new THREE.TextureLoader();
   loader.setPath( 'images/' );
 	
 	const materialArray = [];
 	for (let i = 0; i < 6; i++)
 		materialArray.push( new THREE.MeshBasicMaterial({
-			map: loader.load( imagePrefix + directions[i] + imageSuffix ),
+			map: loader.load( imgs[i] + imgss ),
 			side: THREE.BackSide
 		}));
 	//const skyMaterial = new THREE.MeshBasicMaterial( materialArray );
@@ -567,8 +572,19 @@ FloatingStones.add(fix)
     stoneVector[2].getWorldPosition(stoneVector[3].position.set())
   }
 
-
 //-------------------------------------Renderização-------------------------------------
+
+const offset = new THREE.Vector3(0, 0, 0)
+const distance = 40;
+
+function girarCamera(time){
+    offset.x =distance * Math.sin( time * 0.0002 );
+    offset.z =distance * Math.cos( time * 0.0002 );
+
+    camera.position.set(0,7,0).add( offset );
+    camera.lookAt(0,0,0);
+}
+
 const render = function () {
   requestAnimationFrame(render);
 
@@ -577,6 +593,7 @@ const render = function () {
   blades.rotation.x += 0.005;
   animatebird(time)
   animateStone(time)
+  girarCamera(time)
 
   renderer.render(scene, camera);
 };
